@@ -2,12 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { todosRepository } from "@/lib/todos-repository";
 
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
 const updateTodoSchema = z
   .object({
     title: z.string().min(1).max(200).optional(),
@@ -24,11 +18,25 @@ const updateTodoSchema = z
     },
   );
 
+const getTodoIdFromRequest = (request: NextRequest): string => {
+  const pathname: string = request.nextUrl.pathname;
+  const segments: string[] = pathname.split("/");
+  const lastSegment: string | undefined = segments.at(-1);
+  return lastSegment ?? "";
+};
+
 export const PATCH = async (
   request: NextRequest,
-  context: RouteContext,
 ): Promise<NextResponse> => {
   try {
+    const id: string = getTodoIdFromRequest(request);
+    if (id.length === 0) {
+      return NextResponse.json(
+        { message: "Missing todo id" },
+        { status: 400 },
+      );
+    }
+
     const body = (await request.json()) as unknown;
     const parsed = updateTodoSchema.safeParse(body);
     if (!parsed.success) {
@@ -43,7 +51,7 @@ export const PATCH = async (
       isCompleted: parsed.data.isCompleted,
     };
     const result = await todosRepository.updateTodo({
-      id: context.params.id,
+      id,
       values,
     });
     return NextResponse.json(result, { status: 200 });
@@ -56,11 +64,17 @@ export const PATCH = async (
 };
 
 export const DELETE = async (
-  _request: NextRequest,
-  context: RouteContext,
+  request: NextRequest,
 ): Promise<NextResponse> => {
   try {
-    const result = await todosRepository.deleteTodo({ id: context.params.id });
+    const id: string = getTodoIdFromRequest(request);
+    if (id.length === 0) {
+      return NextResponse.json(
+        { message: "Missing todo id" },
+        { status: 400 },
+      );
+    }
+    const result = await todosRepository.deleteTodo({ id });
     return NextResponse.json(result, { status: 200 });
   } catch {
     return NextResponse.json(

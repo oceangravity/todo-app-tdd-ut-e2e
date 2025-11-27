@@ -15,12 +15,9 @@ type UseTodosResult = {
 export const useTodos = (): UseTodosResult => {
   const queryClient = useQueryClient();
 
-  const todosQuery = useQuery<{ todos: Todo[] }, Error, Todo[]>({
+  const todosQuery = useQuery({
     queryKey: TODOS_QUERY_KEY,
-    queryFn: async () => {
-      const response = await todosApi.getAll();
-      return response.todos;
-    },
+    queryFn: todosApi.getAll,
     select: (data) => data.todos,
   });
 
