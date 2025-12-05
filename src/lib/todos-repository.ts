@@ -15,14 +15,10 @@ type UpdateTodoValues = { title?: string; description?: string | null; isComplet
 type UpdateTodoParams = { id: string; values: UpdateTodoValues };
 type UpdateTodoResult = { todo: Todo };
 
-type DeleteTodoParams = { id: string };
-type DeleteTodoResult = { deletedId: string };
-
 type TodosRepository = {
   getTodos: () => Promise<GetTodosResult>;
   createTodo: (params: CreateTodoParams) => Promise<CreateTodoResult>;
   updateTodo: (params: UpdateTodoParams) => Promise<UpdateTodoResult>;
-  deleteTodo: (params: DeleteTodoParams) => Promise<DeleteTodoResult>;
 };
 
 const getTodos = async (): Promise<GetTodosResult> => {
@@ -73,18 +69,8 @@ const updateTodo = async (params: UpdateTodoParams): Promise<UpdateTodoResult> =
   return { todo: data };
 };
 
-const deleteTodo = async (params: DeleteTodoParams): Promise<DeleteTodoResult> => {
-  const query = supabaseClient.from("todos").delete().eq("id", params.id);
-  const { error } = await query;
-  if (error !== null) {
-    throw new Error(error.message);
-  }
-  return { deletedId: params.id };
-};
-
 export const todosRepository: TodosRepository = {
   getTodos,
   createTodo,
   updateTodo,
-  deleteTodo,
 };

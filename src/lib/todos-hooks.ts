@@ -9,7 +9,6 @@ type UseTodosResult = {
   isLoading: boolean;
   createTodo: (values: { title: string; description?: string | null }) => Promise<void>;
   updateTodo: (id: string, values: { title?: string; description?: string | null; isCompleted?: boolean }) => Promise<void>;
-  deleteTodo: (id: string) => Promise<void>;
 };
 
 export const useTodos = (): UseTodosResult => {
@@ -36,13 +35,6 @@ export const useTodos = (): UseTodosResult => {
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async (variables: { id: string }) => todosApi.remove(variables.id),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: TODOS_QUERY_KEY });
-    },
-  });
-
   const createTodo = async (values: { title: string; description?: string | null }): Promise<void> => {
     await createMutation.mutateAsync(values);
   };
@@ -54,15 +46,10 @@ export const useTodos = (): UseTodosResult => {
     await updateMutation.mutateAsync({ id, values });
   };
 
-  const deleteTodo = async (id: string): Promise<void> => {
-    await deleteMutation.mutateAsync({ id });
-  };
-
   return {
     todos: todosQuery.data ?? [],
     isLoading: todosQuery.isLoading,
     createTodo,
     updateTodo,
-    deleteTodo,
   };
 };

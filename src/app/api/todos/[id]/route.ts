@@ -62,24 +62,3 @@ export const PATCH = async (
     );
   }
 };
-
-export const DELETE = async (
-  request: NextRequest,
-): Promise<NextResponse> => {
-  try {
-    const id: string = getTodoIdFromRequest(request);
-    if (id.length === 0) {
-      return NextResponse.json(
-        { message: "Missing todo id" },
-        { status: 400 },
-      );
-    }
-    const result = await todosRepository.deleteTodo({ id });
-    return NextResponse.json(result, { status: 200 });
-  } catch {
-    return NextResponse.json(
-      { message: "Failed to delete todo" },
-      { status: 500 },
-    );
-  }
-};

@@ -45,16 +45,11 @@ const FilterButton = ({ label, value, currentFilter, onChange }: FilterButtonPro
 type TodoItemProps = {
   todo: Todo;
   onToggleCompleted: (todo: Todo) => void;
-  onDelete: (todo: Todo) => void;
 };
 
-const TodoItem = ({ todo, onToggleCompleted, onDelete }: TodoItemProps): ReactElement => {
+const TodoItem = ({ todo, onToggleCompleted }: TodoItemProps): ReactElement => {
   const handleToggle = (): void => {
     onToggleCompleted(todo);
-  };
-
-  const handleDelete = (): void => {
-    onDelete(todo);
   };
 
   const titleClassName: string = todo.is_completed
@@ -82,13 +77,6 @@ const TodoItem = ({ todo, onToggleCompleted, onDelete }: TodoItemProps): ReactEl
           ) : null}
         </div>
       </div>
-      <button
-        type="button"
-        onClick={handleDelete}
-        className="text-xs font-medium text-red-600 hover:text-red-700"
-      >
-        Delete
-      </button>
     </li>
   );
 };
@@ -104,7 +92,7 @@ const filterTodos = (todos: Todo[], filter: TodoFilter): Todo[] => {
 };
 
 const HomePage = (): ReactElement => {
-  const { todos, isLoading, createTodo, updateTodo, deleteTodo } = useTodos();
+  const { todos, isLoading, createTodo, updateTodo } = useTodos();
   const { filter, setFilter } = useTodoFilterStore();
 
   const form = useForm<TodoFormValues>({
@@ -129,10 +117,6 @@ const HomePage = (): ReactElement => {
     await updateTodo(todo.id, {
       isCompleted: !todo.is_completed,
     });
-  };
-
-  const handleDelete = async (todo: Todo): Promise<void> => {
-    await deleteTodo(todo.id);
   };
 
   const handleFilterChange = (value: TodoFilter): void => {
@@ -226,7 +210,6 @@ const HomePage = (): ReactElement => {
                 key={todo.id}
                 todo={todo}
                 onToggleCompleted={handleToggleCompleted}
-                onDelete={handleDelete}
               />
             ))}
           </ul>
